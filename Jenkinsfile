@@ -3,6 +3,7 @@ node {
     echo " the build number : ${env.BUILD_NUMBER}"
     echo "the JOB_NAME is : ${env.JOB_NAME}"
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5'))])
+    properties([pipelineTriggers([pollSCM('* * * * *')])])
     stage('Checkout') {
         git credentialsId: 'github', url: 'https://github.com/prajwalda1027/maven-web-application.git'
     }

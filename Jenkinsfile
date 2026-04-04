@@ -44,7 +44,7 @@ triggers {
                 sshagent(['3ad84d4f-f957-4b71-8837-4293726cda73']) {
                     sh '''
                         ls -l target/
-                        scp -o StrictHostKeyChecking=no target/*.war ubuntu@34.239.124.105:/opt/tomcat/webapps
+                        scp -o StrictHostKeyChecking=no target/*.war ubuntu@54.237.169.220:/opt/tomcat/webapps
                     '''
                 }
             }

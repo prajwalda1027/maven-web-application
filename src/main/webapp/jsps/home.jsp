@@ -13,7 +13,7 @@
 <h1 align="center">Phone Number: +91 ***********************</h1>
 <h1 align="center">prajwal prajwal</h1>
 
-<h1 align="center">Trainer Name: Bhaskar Reddy Lacchannagari</h1>
+<h1 align="center">Trainer Name:prajwal</h1>
 
 <hr>
 <br>

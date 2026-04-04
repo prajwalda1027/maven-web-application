@@ -1,56 +1,32 @@
-pipeline {
-    agent any
-
-
-    tools {
-        maven "maven3.9.14"
+node {
+    def mavenHome = tool name: 'maven3.9.14'
+    echo " the build number : ${env.BUILD_NUMBER}"
+    echo "the JOB_NAME is : ${env.JOB_NAME}"
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5'))])
+    properties([pipelineTriggers([pollSCM('* * * * *')])])
+    parameters {
+  choice choices: ['master', 'dev', 'test', 'QA'], description: 'Branchname select', name: 'Branchname'
+}
+    stage('Checkout') {
+        git branch: "$(parms.Branchname}", credentialsId: 'github', url: 'https://github.com/prajwalda1027/maven-web-application.git'
     }
-options {
-  timestamps()
-  buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '2', daysToKeepStr: '', numToKeepStr: '2')
-}
-triggers {
-  pollSCM 'H/2 * * * *'
-}
 
-    stages {
+    stage('Build') {
+        sh "${mavenHome}/bin/mvn clean package"
+    }
 
-        stage('Checkout from GitHub') {
-            steps {
-                git credentialsId: 'github', url: 'https://github.com/prajwalda1027/maven-web-application.git'
-            }
-        }
+    stage("Sonarqube report") {
+        sh "${mavenHome}/bin/mvn sonar:sonar"
+    }
 
-        stage('Build the package') {
-            steps {
-                sh "mvn clean package"
-            }
-        }
+    stage('nexus') {
+        sh "${mavenHome}/bin/mvn deploy -s /var/lib/jenkins/tools/hudson.tasks.Maven_MavenInstallation/maven3.9.14/conf/settings.xml"
+    }
 
-        stage('SonarQube report') {
-            steps {
-                sh "mvn sonar:sonar"
-            }
-        }
-
-        stage('Deploy artifact in Nexus') {
-            steps {
-                sh "mvn deploy"
-            }
-        }
-
-        stage('Deploy in Tomcat') {
-            steps {
-                sshagent(['3ad84d4f-f957-4b71-8837-4293726cda73']) {
-                    sh '''
-                        ls -l target/
-                        scp -o StrictHostKeyChecking=no target/*.war ubuntu@54.237.169.220:/opt/tomcat/webapps
-                    '''
-                }
-            }
+    stage('tomcat'){
+        sshagent(['5460b8ff-1693-4b9d-ace1-4d454de29c72']) {
+            // Changed 'ec2-user' to 'ubuntu'
+            sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ubuntu@54.237.169.220:/opt/tomcat/webapps/"
         }
     }
-   
-    }
-}
 }

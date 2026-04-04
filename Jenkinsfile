@@ -8,7 +8,7 @@ properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKe
   choice choices: ['master', 'dev', 'test', 'QA'], description: 'Branchname select', name: 'Branchname'
 }
     stage('Checkout') {
-        git branch: "$(parms.Branchname}", credentialsId: 'github', url: 'https://github.com/prajwalda1027/maven-web-application.git'
+        git branch: "${parms.Branchname}", credentialsId: 'github', url: 'https://github.com/prajwalda1027/maven-web-application.git'
     }
 
     stage('Build') {

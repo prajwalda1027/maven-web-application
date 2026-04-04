@@ -2,11 +2,13 @@ node {
     def mavenHome = tool name: 'maven3.9.14'
     echo " the build number : ${env.BUILD_NUMBER}"
     echo "the JOB_NAME is : ${env.JOB_NAME}"
-properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5'))])
-    properties([pipelineTriggers([pollSCM('* * * * *')])])
-    parameters {
-  choice choices: ['master', 'dev', 'test', 'QA'], description: 'Branchname select', name: 'Branchname'
-}
+properties([
+    buildDiscarder(logRotator(numToKeepStr: '5')),
+    pipelineTriggers([pollSCM('* * * * *')]),
+    parameters([
+        choice(name: 'Branchname', choices: ['master', 'dev', 'test', 'QA'], description: 'Select Branch')
+    ])
+])
     stage('Checkout') {
         git branch: "${params.Branchname}", credentialsId: 'github', url: 'https://github.com/prajwalda1027/maven-web-application.git'
     }
